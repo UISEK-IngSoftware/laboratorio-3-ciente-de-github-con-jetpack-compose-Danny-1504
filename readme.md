@@ -1,7 +1,7 @@
 # Laboratorio Android. Cliente de GitHub
 
 ## Datos  del estudiante
-- Danny Fernanod Caraguay Saltos 
+- Danny Fernando Caraguay Saltos 
 - Ingeniería Informática 
 
 ## Descripción del Proyecto
