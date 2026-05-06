@@ -1,50 +1,64 @@
 package ec.edu.uisek.githubclient.ui.screens
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import ec.edu.uisek.githubclient.ui.components.RepoItem
 import ec.edu.uisek.githubclient.ui.theme.GithubClientTheme
+import ec.edu.uisek.githubclient.viewmodels.RepoListViewModel
 
 @Composable
-fun RepoList () {
-    Column(
-        modifier = Modifier.padding(top = 40.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
+fun RepoList (
+    modifier:Modifier = Modifier,
+    viewModel: RepoListViewModel = viewModel()
+) {
+    val repos by viewModel.repos.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMsg by viewModel.errorMsg.collectAsState()
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 48.dp)
     ) {
-        RepoItem(
-            repoName = "Repositorio de Android",
-            repoDescription = "Respositorio creado en Kotlin con JetPack Compose",
-            repoLanguaje = "Kotlin",
-            repoImage = "https://i0.wp.com/unaaldia.hispasec.com/wp-content/uploads/2015/09/2e303-android-logo.png?resize=200%2C200&ssl=1"
-        )
-        RepoItem(
-            repoName = "Repositorio de IOS",
-            repoDescription = "Respositorio creado en Kotlin con JetPack Compose",
-            repoLanguaje = "Swift",
-            repoImage = "https://www.comparasoftware.ec/media/1784"
-        )
-        RepoItem(
-            repoName = "Repositorio de Django",
-            repoDescription = "Respositorio creado en Kotlin con JetPack Compose",
-            repoLanguaje = "Phyton",
-            repoImage = "https://i0.wp.com/unaaldia.hispasec.com/wp-content/uploads/2016/03/1b04b-django-logo.png?resize=320%2C111&ssl=1"
-        )
-        RepoItem(
-            repoName = "Repositorio de React",
-            repoDescription = "Respositorio creado en Kotlin con JetPack Compose",
-            repoLanguaje = "Java",
-            repoImage = "https://opensource.fb.com/img/projects/react.jpg"
-        )
+        if (isLoading){
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+        errorMsg?.let { message ->
+            Text(
+                text = message,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding( 16.dp)
+            )
+        }
+        if (!isLoading && errorMsg == null){
+            LazyColumn (
+                modifier = Modifier
+                    .fillMaxSize()
+            ){
+                items(repos.size) { i ->
+                    RepoItem(repos[i])
+                }
 
-    }
-}
-@Preview(showBackground = true)
-@Composable
-fun RepoItemPreview () {
-    GithubClientTheme {
-        RepoList()
+            }
+        }
     }
 }

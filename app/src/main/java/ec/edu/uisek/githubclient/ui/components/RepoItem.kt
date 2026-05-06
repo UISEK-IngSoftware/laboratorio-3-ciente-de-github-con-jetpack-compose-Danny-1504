@@ -20,61 +20,52 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import ec.edu.uisek.githubclient.models.GithubUser
+import ec.edu.uisek.githubclient.models.Repository
 import ec.edu.uisek.githubclient.ui.theme.GithubClientTheme
 
+
 @Composable
-fun RepoItem(
-    repoImage: String,
-    repoDescription: String?,
-    repoLanguaje: String,
-    repoName: String,
+
+fun RepoItem (
+    repository: Repository
 ) {
-    Card(
-        modifier = Modifier
-            .padding(all = 8.dp)
-            .fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    Card (
+        modifier = Modifier.padding( 16.dp).fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(4.dp)
+
     ) {
         Row(
-            modifier = Modifier
-                .padding(all = 16.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.padding(16.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             AsyncImage(
-                model = repoImage,
-                contentDescription = "Avatar propietario",
+                repository.owner.avatarUrl,
+                repository.name,
                 modifier = Modifier.size(60.dp),
                 contentScale = ContentScale.Crop
             )
-
             Spacer(modifier = Modifier.width(16.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = repoName,
+                    repository.name,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Bold
                 )
-
                 Spacer(modifier = Modifier.height(4.dp))
-
-
-                if (!repoDescription.isNullOrBlank()) {
+                if (!repository.description.isNullOrBlank()) {
                     Text(
-                        text = repoDescription,
+                        repository.description,
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 3
                     )
                 }
-
                 Spacer(modifier = Modifier.height(4.dp))
-
-
-                if (repoLanguaje.isNotBlank()) {
+                if (!repository.language.isNullOrBlank()) {
                     Text(
-                        text = repoLanguaje,
-                        style = MaterialTheme.typography.bodySmall
+                        repository.language,
+                        style = MaterialTheme.typography.labelSmall,
                     )
                 }
             }
@@ -82,15 +73,23 @@ fun RepoItem(
     }
 }
 
-@Preview(showBackground = true)
+@Preview (showBackground = true)
+
 @Composable
-fun RepoItemPreview() {
+
+fun RepotItemPreview () {
     GithubClientTheme {
-        RepoItem(
-            repoName = "Laboratorio 3",
-            repoDescription = "Compose UI con Jetpack",
-            repoLanguaje = "Kotlin",
-            repoImage = "data:image/jpeg;base64,..."
+        val repository = Repository(
+            id = "1234",
+            name = "Laboratorio 3",
+            owner = GithubUser (
+                id = "0001",
+                login = "DannyCaraguay",
+                avatarUrl = "https://avatars.githubusercontent.com/u/215519037?v=4",
+            ),
+            description = "Jetpack Compose",
+            language = "Kotlin"
         )
+        RepoItem(repository)
     }
 }
