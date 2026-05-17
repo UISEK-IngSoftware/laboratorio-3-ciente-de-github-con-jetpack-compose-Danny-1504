@@ -19,6 +19,11 @@ fun RepoForm(
     onBackClick: () -> Unit = {},
     onCancel: () -> Unit = {},
     onSaveClick: () -> Unit = {},
+    // Parámetros opcionales para edición
+    editRepoName: String? = null,
+    editRepoDescription: String? = null,
+    editOwner: String? = null,
+    editRepoCurrentName: String? = null,
     viewModel: RepoFormViewModel = viewModel()
 ) {
 
@@ -26,8 +31,40 @@ fun RepoForm(
     val isSuccess by viewModel.isSuccess.collectAsState()
     val errMsg by viewModel.errorMsg.collectAsState()
 
+    // Obtener datos iniciales del ViewModel (para edición)
+    val initialName by viewModel.initialName.collectAsState()
+    val initialDescription by viewModel.initialDescription.collectAsState()
+
+    // Usar los parámetros de edición o los del ViewModel
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+
+    // Configurar modo edición cuando se reciben parámetros
+    LaunchedEffect(editRepoName, editOwner, editRepoCurrentName) {
+        if (editRepoName != null && editOwner != null && editRepoCurrentName != null) {
+            viewModel.setEditMode(
+                owner = editOwner,
+                repoName = editRepoCurrentName,
+                currentName = editRepoName,
+                currentDescription = editRepoDescription
+            )
+            name = editRepoName
+            description = editRepoDescription ?: ""
+        } else {
+            // Modo creación: asegurar que está reset
+            viewModel.resetToCreateMode()
+            name = ""
+            description = ""
+        }
+    }
+
+    // También actualizar si cambian los datos del ViewModel
+    LaunchedEffect(initialName, initialDescription) {
+        if (viewModel.isInEditMode() && initialName.isNotEmpty()) {
+            name = initialName
+            description = initialDescription ?: ""
+        }
+    }
 
     LaunchedEffect(key1 = isSuccess) {
         if (isSuccess) {
@@ -39,7 +76,9 @@ fun RepoForm(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Nuevo Repositorio") },
+                title = {
+                    Text(if (viewModel.isInEditMode()) "Editar Repositorio" else "Nuevo Repositorio")
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -66,7 +105,8 @@ fun RepoForm(
                 onValueChange = { name = it },
                 label = { Text("Nombre") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                isError = name.isBlank() && !isLoading
             )
 
             OutlinedTextField(
@@ -101,7 +141,11 @@ fun RepoForm(
 
                 Button(
                     onClick = {
-                        viewModel.createRepository(name, description)
+                        if (viewModel.isInEditMode()) {
+                            viewModel.updateRepository(name, description)
+                        } else {
+                            viewModel.createRepository(name, description)
+                        }
                     },
                     modifier = Modifier.weight(1f),
                     enabled = !isLoading && name.isNotBlank()
@@ -112,7 +156,7 @@ fun RepoForm(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text("Guardar")
+                        Text(if (viewModel.isInEditMode()) "Actualizar" else "Guardar")
                     }
                 }
             }

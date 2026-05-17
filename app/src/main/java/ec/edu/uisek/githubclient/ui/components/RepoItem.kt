@@ -8,8 +8,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,22 +30,20 @@ import ec.edu.uisek.githubclient.models.GithubUser
 import ec.edu.uisek.githubclient.models.Repository
 import ec.edu.uisek.githubclient.ui.theme.GithubClientTheme
 
-
 @Composable
-
-fun RepoItem (
-    repository: Repository
+fun RepoItem(
+    repository: Repository,
+    onEditClick: () -> Unit = {},     // Callback para editar
+    onDeleteClick: () -> Unit = {}    // Callback para eliminar
 ) {
-    Card (
-        modifier = Modifier.padding( 16.dp).fillMaxWidth(),
+    Card(
+        modifier = Modifier.padding(16.dp).fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp)
-
     ) {
         Row(
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             AsyncImage(
                 repository.owner.avatarUrl,
                 repository.name,
@@ -47,6 +51,7 @@ fun RepoItem (
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(16.dp))
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     repository.name,
@@ -69,20 +74,49 @@ fun RepoItem (
                     )
                 }
             }
+
+            // Botones de acción (editar y eliminar)
+            Row(
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+            ) {
+                // Botón Editar
+                IconButton(
+                    onClick = onEditClick,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar repositorio"
+                    )
+                }
+
+                // Botón Eliminar
+                IconButton(
+                    onClick = onDeleteClick,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Eliminar repositorio"
+                    )
+                }
+            }
         }
     }
 }
 
-@Preview (showBackground = true)
-
+@Preview(showBackground = true)
 @Composable
-
-fun RepotItemPreview () {
+fun RepoItemPreview() {
     GithubClientTheme {
         val repository = Repository(
             id = "1234",
             name = "Laboratorio 3",
-            owner = GithubUser (
+            owner = GithubUser(
                 id = "0001",
                 login = "DannyCaraguay",
                 avatarUrl = "https://avatars.githubusercontent.com/u/215519037?v=4",
@@ -90,6 +124,10 @@ fun RepotItemPreview () {
             description = "Jetpack Compose",
             language = "Kotlin"
         )
-        RepoItem(repository)
+        RepoItem(
+            repository = repository,
+            onEditClick = {},
+            onDeleteClick = {}
+        )
     }
 }

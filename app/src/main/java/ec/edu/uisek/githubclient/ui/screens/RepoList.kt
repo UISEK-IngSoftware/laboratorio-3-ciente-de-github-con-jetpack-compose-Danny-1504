@@ -7,14 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -25,16 +19,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import ec.edu.uisek.githubclient.ui.components.RepoItem
 import ec.edu.uisek.githubclient.ui.theme.GithubClientTheme
 import ec.edu.uisek.githubclient.viewmodels.RepoListViewModel
+import ec.edu.uisek.githubclient.models.Repository
 
 @Composable
 fun RepoList(
     modifier: Modifier = Modifier,
     viewModel: RepoListViewModel = viewModel(),
-    onNavigateForm: () -> Unit = {}
+    onNavigateForm: () -> Unit = {},
+    onEditRepo: (Repository) -> Unit = {}  // ← NUEVO: Callback para editar
 ) {
     val repos by viewModel.repos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMsg by viewModel.errorMsg.collectAsState()
+
+    // Estado para mostrar diálogo de confirmación
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var repoToDelete by remember { mutableStateOf<Repository?>(null) }
 
     Scaffold(
         floatingActionButton = {
@@ -49,7 +49,7 @@ fun RepoList(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Añadir respositorio"
+                    contentDescription = "Añadir repositorio"
                 )
             }
         }
@@ -82,11 +82,51 @@ fun RepoList(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(repos.size) { i ->
-                        RepoItem(repos[i])
+                        val repo = repos[i]
+                        RepoItem(
+                            repository = repo,
+                            onEditClick = { onEditRepo(repo) },  // ← NUEVO: Editar
+                            onDeleteClick = {                     // ← NUEVO: Eliminar
+                                repoToDelete = repo
+                                showDeleteDialog = true
+                            }
+                        )
                     }
                 }
             }
         }
+    }
+
+    // Diálogo de confirmación para eliminar
+    if (showDeleteDialog && repoToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Eliminar repositorio") },
+            text = { Text("¿Estás seguro de que quieres eliminar el repositorio \"${repoToDelete?.name}\"? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        repoToDelete?.let { repo ->
+                            viewModel.deleteRepository(repo.owner.login, repo.name) {
+                                viewModel.fetcheRepos()  // Recargar lista después de eliminar
+                            }
+                        }
+                        showDeleteDialog = false
+                        repoToDelete = null
+                    }
+                ) {
+                    Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    repoToDelete = null
+                }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 
