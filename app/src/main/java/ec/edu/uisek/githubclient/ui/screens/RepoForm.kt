@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ec.edu.uisek.githubclient.Viewmodels.RepoFormViewModel
+import ec.edu.uisek.githubclient.viewmodels.RepoFormViewModel
 import ec.edu.uisek.githubclient.ui.theme.GithubClientTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -1,4 +1,4 @@
-package ec.edu.uisek.githubclient.Viewmodels
+package ec.edu.uisek.githubclient.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
