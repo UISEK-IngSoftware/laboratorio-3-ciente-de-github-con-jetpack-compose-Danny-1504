@@ -23,6 +23,9 @@ object RetrofitClient {
             println("DEBUG_TOKEN: Longitud ${token.length}")
 
             val request = chain.request().newBuilder()
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache") // Para compatibilidad con HTTP 1.0
+                .header("Expires", "0")
                 .addHeader("Authorization", "Bearer $token") // Asegúrate de que hay un espacio después de Bearer
                 .build()
             chain.proceed(request)
