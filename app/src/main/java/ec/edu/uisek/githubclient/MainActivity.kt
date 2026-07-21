@@ -43,6 +43,10 @@ class MainActivity : ComponentActivity() {
                             repoToEdit = repo
                             currentScreen = "repoForm"
                         },
+                        onLogout = {
+                            authService.logout()
+                            currentScreen = "login"
+                        },
                         viewModel = listViewModel
                     )
 

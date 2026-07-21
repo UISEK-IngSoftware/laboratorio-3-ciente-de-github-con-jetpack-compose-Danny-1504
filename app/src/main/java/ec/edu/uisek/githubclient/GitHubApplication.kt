@@ -1,7 +1,9 @@
-import android.app.Application
-import ec.edu.uisek.githubclientcompose.services.RetrofitClient
+package ec.edu.uisek.githubclient
 
-class GithubApplication : Application() {
+import android.app.Application
+import ec.edu.uisek.githubclient.services.RetrofitClient
+
+class GitHubApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         RetrofitClient.init(this)

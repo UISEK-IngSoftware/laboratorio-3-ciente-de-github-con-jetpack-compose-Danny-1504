@@ -37,6 +37,10 @@ fun RepoList(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMsg by viewModel.errorMsg.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.fetcheRepos()
+    }
+
     // Estado para mostrar diálogo de confirmación
     var showDeleteDialog by remember { mutableStateOf(false) }
     var repoToDelete by remember { mutableStateOf<Repository?>(null) }

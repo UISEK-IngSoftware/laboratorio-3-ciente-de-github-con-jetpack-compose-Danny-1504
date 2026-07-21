@@ -1,6 +1,5 @@
-package ec.edu.uisek.githubclientcompose.services
+package ec.edu.uisek.githubclient.services
 
-//import ec.edu.uisek.githubclientcompose.BuildConfig
 import android.content.Context
 import ec.edu.uisek.githubclient.BuildConfig
 import okhttp3.OkHttpClient
@@ -28,7 +27,8 @@ object RetrofitClient {
         OkHttpClient.Builder()
             .addInterceptor(logging)
             .addInterceptor { chain ->
-                val token = authService?.getToken() ?: ""
+                // Prioridad: 1. Token de AuthService (login manual), 2. Token de BuildConfig (local.properties)
+                val token = authService?.getToken()?.takeIf { it.isNotBlank() } ?: BuildConfig.GITHUB_TOKEN
 
                 val requestBuilder = chain.request().newBuilder()
                     .addHeader("Accept", "application/vnd.github+json")
